@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastelxngel • Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+    <div id="global-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="lang-toggle" onclick="toggleLang()" title="Cambiar Idioma">ES</button>
+    </div>
+
+    <div class="main-container">
+
+        <div class="header-section reveal delay-1">
+            <nav class="bookmark-nav">
+                <button class="nav-btn active" onclick="switchTab('home', this)">
+                    <i class="bi bi-house-heart"></i> <span data-i18n="nav_home"></span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('portfolio', this)">
+                    <i class="bi bi-palette"></i> <span data-i18n="nav_portfolio"></span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('shop', this)">
+                    <i class="bi bi-shop"></i> <span data-i18n="nav_shop"></span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('tos', this)">
+                    <i class="bi bi-file-earmark-text"></i> <span data-i18n="nav_tos"></span>
+                </button>
+            </nav>
+        </div>
+        
+        <div class="mobile-nav-container" style="display: none;"></div>
+
+        <div class="two-col-layout">
+            
+            <aside class="profile-col reveal delay-2">
+                <img src="assets/img/core/Illustrationpfp.png" alt="Avatar" class="avatar">
+                
+                <div class="profile-text-content">
+                    <h1>Ameriria <i class="bi bi-patch-check-fill" style="color: var(--primary-main); font-size: 1.2rem;"></i></h1>
+                    <p class="handle">@pastelxngel</p>
+                    
+                    <div class="comm-status-wrapper">
+                        <div class="mood-badge status-open" id="comm-badge">
+                            <div class="pulse-dot" id="comm-pulse"></div> 
+                            <span id="comm-status-text" data-i18n="comm_status_open">Comisiones Abiertas</span>
+                        </div>
+                        <div class="slots-text" id="comm-slots">
+                            <span id="comm-slots-count">0 / 0</span> Slots <span data-i18n="comm_slots_avail">Disponibles</span>
+                        </div>
+                    </div>
+
+                    <p class="bio" data-i18n="bio_text"></p>
+                </div>
+
+                <div class="social-links">
+    <a href="https://x.com/pastelxngel" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter / X"><i class="bi bi-twitter-x"></i></a>
+    <a href="https://www.instagram.com/pastelxngel/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+    <a href="https://www.twitch.tv/pastelxngel" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitch"><i class="bi bi-twitch"></i></a>
+    <a href="https://www.youtube.com/@pastelxngel" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+
+    <a href="https://ko-fi.com/pastelxngel" target="_blank" rel="noopener noreferrer" class="social-btn social-btn-kofi" aria-label="Ko-fi">
+        <img src="https://cdn.simpleicons.org/kofi/422524" alt="Ko-fi" class="icon-dark">
+        <img src="https://cdn.simpleicons.org/kofi/ff9cc1" alt="Ko-fi" class="icon-pink">
+    </a>
+
+    <a href="https://vgen.co/pastelxngel" target="_blank" rel="noopener noreferrer" class="social-btn social-btn-vgen" aria-label="VGen">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/VGen_logo.png/1280px-VGen_logo.png" alt="VGen">
+    </a>
+
+    <div class="tooltip-container">
+        <a href="mailto:art@ameriria.com" class="social-btn" aria-label="Email"><i class="bi bi-envelope-heart"></i></a>
+        <span class="tooltip-text">art@ameriria.com</span>
+    </div>
+
+    <div class="tooltip-container">
+        <span class="social-btn" style="cursor: pointer;"><i class="bi bi-discord"></i></span>
+        <span class="tooltip-text">@Ameriria</span>
+    </div>
+</div>
+            </aside>
+
+            <main class="main-content-col">
+                
+                <section id="home" class="tab-content active">
+                    <h2 class="section-title reveal delay-3"><span>::</span> <span data-i18n="home_title"></span></h2>
+                    <div class="text-block searchable reveal delay-4" data-i18n="home_welcome"></div>
+                </section>
+
+                <section id="portfolio" class="tab-content">
+                    <h2 class="section-title reveal delay-3"><span>::</span> <span data-i18n="port_title"></span></h2>
+                    
+                    <div class="marquee-wrapper reveal delay-3" id="highlights-container" style="display: none;">
+                        <div class="marquee-track" id="marquee-track"></div>
+                    </div>
+                    
+                    <div class="filters-action-bar reveal delay-4" style="display: flex; justify-content: flex-end; margin-bottom: 20px; border-bottom: 2px dashed var(--glass-border); padding-bottom: 15px;">
+                        <button class="filter-toggle-btn" onclick="toggleFiltersUI()">
+                            <i class="bi bi-funnel"></i> <span data-i18n="filter_btn">Filtros</span> <i class="bi bi-chevron-down toggle-arrow"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="collapsible-filters" id="filters-container">
+                        <div class="ui-filters">
+                            <div class="filter-row">
+                                <span class="filter-label"><i class="bi bi-palette2"></i> <span data-i18n="filter_lbl_type">Tipo</span>:</span>
+                                <div class="ui-btn-group" id="filter-type-group">
+                                    <button class="ui-filter-btn active" onclick="toggleFilter('type', 'all', this)" data-i18n="filter_type_all">Todos</button>
+                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Original', this)">Original</button>
+                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Comisión', this)" data-i18n="filter_type_comm">Comisión</button>
+                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Fanart', this)">Fanart</button>
+                                </div>
+                            </div>
+                            <div class="filter-row">
+                                <span class="filter-label"><i class="bi bi-calendar3"></i> <span data-i18n="filter_lbl_year">Año</span>:</span>
+                                <div class="ui-btn-group" id="filter-year-group">
+                                    <button class="ui-filter-btn active" onclick="toggleFilter('year', 'all', this)" data-i18n="filter_year_all">Cualquiera</button>
+                                    <button class="ui-filter-btn" onclick="toggleFilter('year', '2026', this)">2026</button>
+                                    <button class="ui-filter-btn" onclick="toggleFilter('year', '2025', this)">2025</button>
+                                </div>
+                            </div>
+                            
+                            <div id="fanart-tags" class="tags-container" style="display: none;">
+                                <button class="tag-btn" onclick="toggleTag(this, 'Genshin Impact')">Genshin Impact</button>
+                                <button class="tag-btn" onclick="toggleTag(this, 'Neopets')">Neopets</button>
+                                <button class="tag-btn" onclick="toggleTag(this, 'Zenless Zone Zero')">ZZZ</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-container reveal delay-4" id="portfolio-grid"></div>
+                </section>
+
+                <section id="shop" class="tab-content">
+                    <h2 class="section-title reveal delay-3"><span>::</span> <span data-i18n="shop_title"></span></h2>
+                    
+                    <div class="sub-nav reveal delay-4">
+                        <button class="sub-nav-btn active" onclick="switchSubTab('shop-commissions', this)" data-i18n="shop_sub_comm"></button>
+                        <button class="sub-nav-btn" onclick="switchSubTab('shop-status', this)" data-i18n="shop_sub_status"></button>
+                        <button class="sub-nav-btn" onclick="switchSubTab('shop-dos', this)" data-i18n="shop_sub_dos"></button>
+                        <button class="sub-nav-btn" onclick="switchSubTab('shop-wishlist', this)" data-i18n="shop_sub_wish"></button>
+                    </div>
+
+                    <div id="shop-commissions" class="sub-tab-content active reveal delay-5">
+                        <div class="text-block searchable" data-i18n="shop_comm_info"></div>
+                    </div>
+
+                    <div id="shop-status" class="sub-tab-content reveal delay-5">
+                        <div class="status-legend glass-card" style="padding: 15px; margin-bottom: 20px;">
+                            <div class="legend-group">
+                                <strong><span data-i18n="legend_pay">Pago:</span></strong>
+                                <div class="legend-items">
+                                    <span><span class="tag-dot pay-unpaid"></span> <span data-i18n="legend_unpaid">Pendiente</span></span>
+                                    <span><span class="tag-dot pay-paid"></span> <span data-i18n="legend_paid">Pagado</span></span>
+                                </div>
+                            </div>
+                            <div class="legend-group" style="margin-top: 10px;">
+                                <strong><span data-i18n="legend_prog">Progreso:</span></strong>
+                                <div class="legend-items">
+                                    <span><span class="tag-dot status-not_started"></span> <span data-i18n="legend_wait">Espera</span></span>
+                                    <span><span class="tag-dot status-sketch"></span> <span data-i18n="legend_sketch">Boceto</span></span>
+                                    <span><span class="tag-dot status-lineart"></span> <span data-i18n="legend_lineart">Lineart</span></span>
+                                    <span><span class="tag-dot status-color"></span> <span data-i18n="legend_color">Color</span></span>
+                                    <span><span class="tag-dot status-finished"></span> <span data-i18n="legend_ready">Listo</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="kanban-container" id="dynamic-kanban-board">
+                            <p class="loading-text">Cargando pedidos...</p>
+                        </div>
+                    </div>
+
+                    <div id="shop-dos" class="sub-tab-content reveal delay-5">
+                        <div class="dos-donts-grid">
+                            <div class="list-box dos searchable">
+                                <h3 data-i18n="shop_dos"></h3>
+                                <ul id="list-dos"></ul>
+                            </div>
+                            <div class="list-box donts searchable">
+                                <h3 data-i18n="shop_donts"></h3>
+                                <ul id="list-donts"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="shop-wishlist" class="sub-tab-content reveal delay-5">
+                        <div class="grid-container" id="wishlist-grid"></div>
+                    </div>
+                </section>
+
+                <section id="tos" class="tab-content">
+                    <h2 class="section-title reveal delay-3"><span>::</span> <span data-i18n="tos_title"></span></h2>
+                    
+                    <div id="tos-dynamic-container" class="reveal delay-4">
+                        <p class="loading-text" style="text-align: center; padding: 20px;">
+                            <i class="bi bi-arrow-repeat spin"></i> Cargando políticas legales...
+                        </p>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-public-item" class="modal-overlay">
+        <div class="modal-box modal-box-scroll" style="max-width: 500px;">
+            <div class="modal-icon info"><i class="bi bi-journal-check"></i></div>
+            <h3 id="public-item-title" data-i18n="modal_title">Detalles del Pedido</h3>
+            
+            <div class="readonly-detail">
+                <strong><span data-i18n="modal_client">Cliente:</span></strong> <span id="public-item-client"></span>
+            </div>
+            <div class="readonly-detail">
+                <strong><span data-i18n="modal_perms">Permisos:</span></strong> <span id="public-item-perms"></span>
+            </div>
+            
+            <div class="form-row" style="margin-top: 15px;">
+                <div class="readonly-detail">
+                    <strong><span data-i18n="modal_prog">Progreso:</span></strong> <span id="public-item-progress"></span>
+                </div>
+                <div class="readonly-detail">
+                    <strong><span data-i18n="modal_pay">Pago:</span></strong> <span id="public-item-payment"></span>
+                </div>
+            </div>
+
+            <div id="public-image-container" style="display:none; text-align: center; margin: 15px 0; background: #fdfbff; border: 1px dashed var(--glass-border); padding: 10px; border-radius: 12px;">
+                <strong><span data-i18n="modal_preview">Vista Previa del Trabajo:</span></strong><br>
+                <img id="public-item-image" src="" style="max-height: 150px; border-radius: 8px; margin-top: 10px; object-fit: contain; cursor: pointer;" onclick="openFullscreenImage(this.src)">
+            </div>
+
+            <div class="readonly-detail" style="margin-top: 15px;">
+                <strong><span data-i18n="modal_notes">Notas / Detalles:</span></strong>
+                <p id="public-item-notes" style="background: #fff9f9; padding: 12px; border-radius: 10px; font-size: 0.85rem; border: 1px solid var(--primary-light); min-height: 40px;"></p>
+            </div>
+
+            <div class="readonly-detail" style="margin-top: 15px;">
+                <strong><span data-i18n="modal_log">Bitácora de Progreso:</span></strong>
+                <div id="public-item-history" class="history-container" style="margin-top: 5px;"></div>
+            </div>
+
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button onclick="closePublicModal('modal-public-item')" class="modal-btn btn-prim" style="width: 100%;" data-i18n="modal_close">Cerrar Detalles</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="commission-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); z-index:9999;">
+        <div style="width: 90%; max-width: 700px; height: 85vh; padding: 0; position: relative; overflow: hidden; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border: 2px solid var(--primary-light); border-radius: 20px; box-shadow: 0 15px 35px rgba(255, 156, 193, 0.2);">
+            
+            <div style="background: var(--primary-light); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--glass-border);">
+                <h3 id="form-modal-title" style="margin:0; color: var(--primary-main); font-family: 'Poppins', sans-serif; font-size: 1.1rem;"><i class="bi bi-stars"></i> Solicitar Comisión</h3>
+                <button onclick="closeCommissionForm()" style="background:none; border:none; font-size:1.5rem; color:var(--text-light); cursor:pointer; transition: 0.2s;" onmouseover="this.style.color='var(--primary-main)'" onmouseout="this.style.color='var(--text-light)'"><i class="bi bi-x-lg"></i></button>
+            </div>
+            
+            <iframe id="form-iframe" 
+                    src="" 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    marginheight="0" 
+                    marginwidth="0" 
+                    title="Formulario de Comisión" 
+                    style="flex: 1; background: transparent; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
+                Cargando formulario...
+            </iframe>
+            
+        </div>
+    </div>
+
+    <div id="modal-image-view" class="modal-overlay" onclick="closeFullscreenImage(event)">
+        <span class="close-image-btn" onclick="forceCloseFullscreen()"><i class="bi bi-x-lg"></i></span>
+        <div class="zoom-container" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+            <img id="full-view-img" src="" alt="Full view">
+        </div>
+    </div>
+    
+    <button id="backToTop" class="back-to-top" onclick="scrollToTop()">
+        <i class="bi bi-arrow-up-short"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/script.js"></script>
+
+</body>
+</html>
