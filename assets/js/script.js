@@ -1,3 +1,6 @@
+/* =========================================================
+   1. CONFIGURATION & GLOBAL VARIABLES
+========================================================= */
 const SUPABASE_URL = 'https://ltqybdtwvnlgfolymhvy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cXliZHR3dm5sZ2ZvbHltaHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDMwNzEsImV4cCI6MjA5MTc3OTA3MX0.blNYNrEjXfJSsM3JgUhYX7GKL6V-2F68YXNR_uuTzpM';
 const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -9,7 +12,6 @@ let shopData = {};
 let shopConfig = {}; 
 let activeTags = [];
 let currentOpenModalItemId = null; 
-
 let activeTypes = []; 
 let activeYears = []; 
 
@@ -20,6 +22,9 @@ const dynDicts = {
     misc: { no_notes: { es: 'Sin detalles adicionales.', en: 'No additional details.' }, loading_logs: { es: 'Consultando...', en: 'Fetching...' }, no_logs: { es: 'Sin registros de actividad.', en: 'No activity logs yet.' } }
 };
 
+/* =========================================================
+   2. UTILS
+========================================================= */
 function format24hDate(dateString, lang) {
     const d = new Date(dateString);
     const pad = (n) => n.toString().padStart(2, '0');
@@ -29,6 +34,9 @@ function format24hDate(dateString, lang) {
     return `${pad(d.getDate())} ${month}, ${pad(d.getHours())}:${pad(d.getMinutes())} hrs`;
 }
 
+/* =========================================================
+   3. DATA LOADING & INITIALIZATION
+========================================================= */
 async function loadAllData() {
     try {
         const { data: transData } = await _client.from('translations').select('*');
@@ -76,6 +84,9 @@ async function loadAllData() {
 
 document.addEventListener('DOMContentLoaded', loadAllData);
 
+/* =========================================================
+   4. LANGUAGE (I18N)
+========================================================= */
 window.updateLanguage = function(lang) {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -96,6 +107,9 @@ window.toggleLang = function() {
     updateLanguage(currentLang);
 };
 
+/* =========================================================
+   5. UI RESPONSIVE COMPONENTS
+========================================================= */
 function initBioCollapse() {
     const bioText = document.querySelector('.bio');
     if (!bioText) return;
@@ -139,6 +153,15 @@ function initBioCollapse() {
 }
 window.addEventListener('resize', initBioCollapse);
 
+function initMobileNav() {
+    const mobileNav = document.querySelector('.mobile-nav-container');
+    const bookmarkNav = document.querySelector('.bookmark-nav').innerHTML;
+    if (mobileNav) mobileNav.innerHTML = bookmarkNav;
+}
+
+/* =========================================================
+   6. SHOP & KANBAN
+========================================================= */
 function renderCommissionStatus() {
     const badge = document.getElementById('comm-badge');
     const statusText = document.getElementById('comm-status-text');
@@ -213,7 +236,7 @@ async function renderShop() {
         } else {
             wGrid.innerHTML = wishlistData.map(item => `
                 <div class="card-item reveal" style="text-align: center; align-items: center;">
-                    <img src="${item.image_url}" class="card-img" style="aspect-ratio: 1/1; object-fit: cover; margin-bottom: 10px;" onclick="openFullscreenImage('${item.image_url}')">
+                    <img src="${item.image_url}" class="card-img" style="aspect-ratio: 1/1; object-fit: cover; margin-bottom: 10px;">
                     <h3 class="card-title" style="font-size: 0.9rem;">${item.title}</h3>
                     <div style="background: var(--white); border: 1px solid var(--primary-main); color: var(--primary-main); padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; margin-top: 5px;">
                         $${item.price} USD
@@ -224,6 +247,9 @@ async function renderShop() {
     }
 }
 
+/* =========================================================
+   7. PRICELIST
+========================================================= */
 window.scrollThumbnails = function(id, direction) {
     const container = document.getElementById(`thumb-container-${id}`);
     const scrollAmount = 100; 
@@ -235,7 +261,8 @@ window.scrollThumbnails = function(id, direction) {
 };
 
 window.swapPriceImage = function(mainImgId, newSrc) {
-    document.getElementById(mainImgId).src = newSrc;
+    const img = document.getElementById(mainImgId);
+    if(img) img.src = newSrc;
 };
 
 async function renderPricelist() {
@@ -245,11 +272,7 @@ async function renderPricelist() {
     const anchoImagen = "250px";
     const paddingCuadro = "20px";
     
-    const { data, error } = await _client.from('pricelist')
-        .select('*')
-        .eq('is_visible', true) 
-        .order('position');
-        
+    const { data, error } = await _client.from('pricelist').select('*').eq('is_visible', true).order('position');
     if (error) return;
 
     let html = "";
@@ -271,10 +294,10 @@ async function renderPricelist() {
                 buttonsHtml += `<button onclick="openCommissionForm()" class="cute-btn" style="flex: 1 1 auto; justify-content: center;"><i class="bi bi-envelope-paper-heart" style="color: var(--primary-main);"></i> ${btnText}</button>`;
             }
             if (item.button_kofi) {
-                buttonsHtml += `<a href="${item.button_kofi}" target="_blank" class="cute-btn" style="flex: 1 1 auto; justify-content: center;"><img src="https://cdn.simpleicons.org/kofi/ff9cc1" style="width: 1.2em; height: 1.2em; transform: translateY(-1px);"> Ko-fi <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem; opacity: 0.7; margin-left: 2px;"></i></a>`;
+                buttonsHtml += `<a href="${item.button_kofi}" target="_blank" rel="noopener noreferrer" class="cute-btn" style="flex: 1 1 auto; justify-content: center;"><img src="https://cdn.simpleicons.org/kofi/ff9cc1" style="width: 1.2em; height: 1.2em; transform: translateY(-1px);"> Ko-fi <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem; opacity: 0.7; margin-left: 2px;"></i></a>`;
             }
             if (item.button_vgen) {
-                buttonsHtml += `<a href="${item.button_vgen}" target="_blank" class="cute-btn" style="flex: 1 1 auto; justify-content: center;"><i class="bi bi-stars" style="color: var(--primary-main);"></i> VGen <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem; opacity: 0.7; margin-left: 2px;"></i></a>`;
+                buttonsHtml += `<a href="${item.button_vgen}" target="_blank" rel="noopener noreferrer" class="cute-btn" style="flex: 1 1 auto; justify-content: center;"><i class="bi bi-stars" style="color: var(--primary-main);"></i> VGen <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem; opacity: 0.7; margin-left: 2px;"></i></a>`;
             }
             buttonsHtml += '</div>';
 
@@ -289,7 +312,25 @@ async function renderPricelist() {
                             <img id="price-main-img-${item.id}" src="${mainImage}" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; cursor: pointer; transition: transform 0.3s ease;" 
                                  onclick="openFullscreenImage(this.src)">
                         </div>
-                        </div>
+
+                        ${images.length > 1 ? `
+                        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                            
+                            ${images.length > 3 ? `<button onclick="scrollThumbnails(${item.id}, 'left')" style="background: var(--primary-light); border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; position: absolute; left: -10px; z-index: 2; color: var(--primary-main); display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"><i class="bi bi-chevron-left"></i></button>` : ''}
+                            
+                            <div id="thumb-container-${item.id}" style="display: flex; gap: 8px; overflow-x: auto; padding: 5px; scrollbar-width: none; scroll-behavior: smooth; width: 100%;">
+                                ${images.map(img => `
+                                    <img src="${img}" style="width: 50px; height: 50px; flex-shrink: 0; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: 0.2s;" 
+                                         onclick="swapPriceImage('price-main-img-${item.id}', '${img}')"
+                                         onmouseover="this.style.borderColor='var(--primary-main)'" 
+                                         onmouseout="this.style.borderColor='transparent'">
+                                `).join('')}
+                            </div>
+
+                            ${images.length > 3 ? `<button onclick="scrollThumbnails(${item.id}, 'right')" style="background: var(--primary-light); border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; position: absolute; right: -10px; z-index: 2; color: var(--primary-main); display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"><i class="bi bi-chevron-right"></i></button>` : ''}
+                            
+                        </div>` : ''}
+                    </div>
                     <div style="padding-top: 45px; display: flex; flex-direction: column;">
                         <div style="font-size:0.95rem; color:var(--text-light); margin-bottom:20px; white-space: pre-wrap; line-height: 1.6;">${desc || ''}</div>
                         <div style="border-radius:15px; overflow:hidden; background: var(--white); border: 1px solid var(--glass-border); box-shadow: 0 5px 20px rgba(255, 156, 193, 0.1);">
@@ -314,6 +355,9 @@ async function renderPricelist() {
     container.innerHTML = html;
 }
 
+/* =========================================================
+   8. PUBLIC ITEM MODAL & LOGS
+========================================================= */
 function translateLogMessage(msg, lang) {
     if (lang === 'en') return msg; 
     
@@ -386,12 +430,16 @@ window.closePublicModal = function(modalId) {
     document.getElementById(modalId).style.display = 'none';
 };
 
+/* =========================================================
+   9. TABS, FILTERS & PORTFOLIO LOGIC
+========================================================= */
 window.switchTab = function(tabId, btnClicked) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     document.querySelectorAll(`.nav-btn[onclick*="'${tabId}'"]`).forEach(b => b.classList.add('active'));
-    document.getElementById('searchInput')?.value && (document.getElementById('searchInput').value = ''); filterContent();
+    if (document.getElementById('searchInput')) document.getElementById('searchInput').value = '';
+    if (typeof filterContent === "function") filterContent();
 };
 
 window.switchSubTab = function(subTabId, btnClicked) {
@@ -488,12 +536,21 @@ function renderPortfolio(data) {
     });
 }
 
-function initMobileNav() {
-    const mobileNav = document.querySelector('.mobile-nav-container');
-    const bookmarkNav = document.querySelector('.bookmark-nav').innerHTML;
-    if (mobileNav) mobileNav.innerHTML = bookmarkNav;
-}
+window.filterContent = function() {
+    const input = document.getElementById('searchInput');
+    if (!input) return;
+    const term = input.value.toLowerCase();
+    const activeTab = document.querySelector('.tab-content.active');
+    if (!activeTab) return;
+    activeTab.querySelectorAll('.searchable').forEach(item => {
+        const text = item.textContent || item.innerText;
+        item.style.display = text.toLowerCase().includes(term) ? "" : "none";
+    });
+};
 
+/* =========================================================
+   10. FULLSCREEN IMAGE VIEWER
+========================================================= */
 let zoomScale = 1; let maxAllowedZoom = 5; let isPanning = false; let startX = 0, startY = 0; let translateX = 0, translateY = 0;
 let fullViewImg; let modalView;
 
@@ -546,12 +603,18 @@ function updateImageTransform() {
     fullViewImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
 }
 
+/* =========================================================
+   11. SCROLL & MISC UTILS
+========================================================= */
 window.onscroll = function() {
     const btn = document.getElementById("backToTop");
     if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) { btn.classList.add("show"); } else { btn.classList.remove("show"); }
 };
 function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
+/* =========================================================
+   12. TOS & LEGAL DOCS
+========================================================= */
 async function renderLegalDocs() {
     const container = document.getElementById('tos-dynamic-container');
     if (!container) return;
@@ -605,6 +668,9 @@ async function renderLegalDocs() {
     }
 }
 
+/* =========================================================
+   13. TALLY COMMISSION FORM MODAL
+========================================================= */
 window.openCommissionForm = function() {
     const urlES = "https://tally.so/embed/PdBpEQ?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
     const urlEN = "https://tally.so/embed/44NQXA?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1";
@@ -624,6 +690,9 @@ window.closeCommissionForm = function() {
     setTimeout(() => { document.getElementById('form-iframe').src = ""; }, 300);
 };
 
+/* =========================================================
+   14. GLOBAL EVENT LISTENERS
+========================================================= */
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (document.getElementById('commission-modal')?.style.display === 'flex') closeCommissionForm();
