@@ -1393,16 +1393,17 @@ body:not(.loaded) .reveal {
   transition: background-color 0.4s ease;
   cursor: help;
 }
+
 .status-dot-online {
-  background-color: #b5e4ca;
-  box-shadow: 0 0 10px rgba(181, 228, 202, 0.6);
+  background-color: #95e093;
+  box-shadow: 0 0 10px rgba(149, 224, 147, 0.6);
 }
 .status-dot-busy {
-  background-color: #f7ca94;
-  box-shadow: 0 0 10px rgba(247, 202, 148, 0.6);
+  background-color: #ff7e7e;
+  box-shadow: 0 0 10px rgba(255, 126, 126, 0.6);
 }
 .status-dot-offline {
-  background-color: #ffb3ba;
+  background-color: #a3a6ad;
 }
 
 .custom-status-tooltip {
