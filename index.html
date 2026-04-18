@@ -22,7 +22,7 @@
 
     <div class="main-container">
 
-        <div class="header-section reveal delay-1">
+        <div id="profile-banner" class="header-section reveal delay-1">
             <nav class="bookmark-nav">
                 <button class="nav-btn active" onclick="switchTab('home', this)">
                     <i class="bi bi-house-heart"></i> <span data-i18n="nav_home"></span>
@@ -43,19 +43,25 @@
 
         <div class="two-col-layout">
             
-            <aside class="profile-col reveal delay-2">
-                <img src="assets/img/core/pfp.png" alt="Avatar" class="avatar">
+<aside class="profile-col reveal delay-2">
+                
+                <div class="avatar-wrapper">
+                    <img id="profile-avatar" src="assets/img/core/pfp.png" alt="Avatar" class="avatar">
+                    <div class="tooltip-container" style="position: absolute; bottom: 13px; right: 13px;">
+                        <div id="avatar-status-dot" class="avatar-status-dot"></div>
+                        <span class="tooltip-text custom-status-tooltip" id="avatar-status-tooltip">Calculando...</span>
+                    </div>
+                </div>
                 
                 <div class="profile-text-content">
                     <h1>Ameriria <i class="bi bi-patch-check-fill" style="color: var(--primary-main); font-size: 1.2rem;"></i></h1>
                     <p class="handle">@pastelxngel</p>
                     
-                    <div class="comm-status-wrapper">
-                        <div class="mood-badge status-open" id="comm-badge">
-                            <div class="pulse-dot" id="comm-pulse"></div> 
-                            <span id="comm-status-text" data-i18n="comm_status_open">Comisiones Abiertas</span>
+                    <div class="comm-status-wrapper" style="margin-bottom: 15px;">
+                        <div style="font-weight: 700; color: var(--primary-main); font-size: 0.9rem;">
+                            <i class="bi bi-stars"></i> <span id="comm-status-text" data-i18n="comm_status_open">Comisiones Abiertas</span>
                         </div>
-                        <div class="slots-text" id="comm-slots">
+                        <div class="slots-text" id="comm-slots" style="margin-top: 2px;">
                             <span id="comm-slots-count">0 / 0</span> Slots <span data-i18n="comm_slots_avail">Disponibles</span>
                         </div>
                     </div>
@@ -85,7 +91,7 @@
                 
                 <section id="home" class="tab-content active">
                     <h2 class="section-title reveal delay-3"><span>::</span> <span data-i18n="home_title"></span></h2>
-                    <div class="text-block searchable reveal delay-4" data-i18n="home_welcome"></div>
+                    <div class="searchable reveal delay-4" data-i18n="home_welcome"></div>
                 </section>
 
                 <section id="portfolio" class="tab-content">
@@ -122,9 +128,6 @@
                             </div>
                             
                             <div id="fanart-tags" class="tags-container" style="display: none;">
-                                <button class="tag-btn" onclick="toggleTag(this, 'Genshin Impact')">Genshin Impact</button>
-                                <button class="tag-btn" onclick="toggleTag(this, 'Neopets')">Neopets</button>
-                                <button class="tag-btn" onclick="toggleTag(this, 'Zenless Zone Zero')">ZZZ</button>
                             </div>
                         </div>
                     </div>

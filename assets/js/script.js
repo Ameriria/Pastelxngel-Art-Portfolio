@@ -50,6 +50,7 @@ async function loadAllData() {
                 tipo: item.type, tags: item.tags || [], object_position: item.object_position || 'center',
                 destacado: item.destacado || false
             }));
+            renderDynamicTags();
         }
 
         const { data: colsData } = await _client.from('shop_columns').select('*').order('position');
@@ -92,6 +93,15 @@ window.updateLanguage = function(lang) {
         const key = el.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key]) el.innerHTML = translations[lang][key];
     });
+
+    // --- Aplicar Identidad Visual (Avatar y Banner) ---
+    const avatarImg = document.getElementById('profile-avatar');
+    if (avatarImg && translations[lang].avatar) avatarImg.src = translations[lang].avatar;
+    
+    const bannerDiv = document.getElementById('profile-banner');
+    if (bannerDiv && translations[lang].banner) bannerDiv.style.backgroundImage = `url('${translations[lang].banner}')`;
+    // --------------------------------------------------
+
     renderPortfolio(misIlustraciones); 
     if (currentOpenModalItemId !== null) { fillModalData(currentOpenModalItemId); loadPublicItemHistory(currentOpenModalItemId); }
     renderLegalDocs(); 
@@ -163,29 +173,41 @@ function initMobileNav() {
    6. SHOP & KANBAN
 ========================================================= */
 function renderCommissionStatus() {
-    const badge = document.getElementById('comm-badge');
     const statusText = document.getElementById('comm-status-text');
     const slotsContainer = document.getElementById('comm-slots');
     const slotsCount = document.getElementById('comm-slots-count');
 
-    if (!badge || !shopConfig) return;
+    if (!shopConfig) return;
 
     if (shopConfig.is_open) {
-        badge.className = 'mood-badge status-open';
-        statusText.setAttribute('data-i18n', 'comm_status_open');
-        statusText.innerText = translations[currentLang]?.comm_status_open || 'Comisiones Abiertas';
-        
-        if (shopConfig.is_infinite) {
-            slotsContainer.style.display = 'none';
-        } else {
-            slotsContainer.style.display = 'block';
-            slotsCount.innerText = `${shopConfig.current_slots || 0} / ${shopConfig.max_slots || 0}`;
-        }
+        if(statusText) { statusText.setAttribute('data-i18n', 'comm_status_open'); statusText.innerText = translations[currentLang]?.comm_status_open || 'Comisiones Abiertas'; }
+        if(slotsContainer) slotsContainer.style.display = shopConfig.is_infinite ? 'none' : 'block';
+        if(slotsCount) slotsCount.innerText = `${shopConfig.current_slots || 0} / ${shopConfig.max_slots || 0}`;
     } else {
-        badge.className = 'mood-badge status-closed';
-        statusText.setAttribute('data-i18n', 'comm_status_closed');
-        statusText.innerText = translations[currentLang]?.comm_status_closed || 'Comisiones Cerradas';
-        slotsContainer.style.display = 'none';
+        if(statusText) { statusText.setAttribute('data-i18n', 'comm_status_closed'); statusText.innerText = translations[currentLang]?.comm_status_closed || 'Comisiones Cerradas'; }
+        if(slotsContainer) slotsContainer.style.display = 'none';
+    }
+
+    const dot = document.getElementById('avatar-status-dot');
+    const tooltip = document.getElementById('avatar-status-tooltip');
+    
+    if (dot && tooltip) {
+        const tOnline = parseInt((shopConfig.time_online || '08:00').split(':')[0]);
+        const tBusy = parseInt((shopConfig.time_busy || '16:00').split(':')[0]);
+        const tOffline = parseInt((shopConfig.time_offline || '21:00').split(':')[0]);
+
+        const chileTime = new Date().toLocaleString("en-US", {timeZone: "America/Santiago"});
+        const currentHour = new Date(chileTime).getHours();
+
+        let status = 'offline';
+        if (currentHour >= tOnline && currentHour < tBusy) status = 'online';
+        else if (currentHour >= tBusy && currentHour < tOffline) status = 'busy';
+        
+        const textEs = { online: 'Conectada', busy: 'Ocupada', offline: 'Durmiendo/Desconectada' };
+        const textEn = { online: 'Online', busy: 'Busy', offline: 'Sleeping/Offline' };
+
+        dot.className = `avatar-status-dot status-dot-${status}`;
+        tooltip.innerText = currentLang === 'es' ? textEs[status] : textEn[status];
     }
 }
 
@@ -272,7 +294,11 @@ async function renderPricelist() {
     const anchoImagen = "250px";
     const paddingCuadro = "20px";
     
-    const { data, error } = await _client.from('pricelist').select('*').eq('is_visible', true).order('position');
+    const { data, error } = await _client.from('pricelist')
+        .select('*')
+        .eq('is_visible', true) 
+        .order('position');
+        
     if (error) return;
 
     let html = "";
@@ -525,13 +551,21 @@ function renderPortfolio(data) {
         let displayType = art.tipo;
         if (art.tipo === 'Comisión' && translations[currentLang] && translations[currentLang].filter_type_comm) { displayType = translations[currentLang].filter_type_comm; }
         
+        // Magia aquí: Filtra tags vacíos y solo pone el " | " si realmente hay algo
+        const validTags = (art.tags || []).filter(t => t && t.trim() !== '');
+        const tagsStr = validTags.length > 0 ? ` | ${validTags.join(', ')}` : '';
+        
         const staggeredDelay = (index * 0.05) + 0.4;
         grid.innerHTML += `
             <div class="card-item searchable reveal" style="animation-delay: ${staggeredDelay}s">
                 <div class="card-badge">${art.año}</div>
-                <img src="${art.imagen}" class="card-img" alt="${art.titulo}" style="object-position: ${art.object_position || '50% 50%'};" onclick="openFullscreenImage('${art.imagen}')">
+                
+                <div class="portfolio-img-wrapper">
+                    <img src="${art.imagen}" class="card-img" alt="${art.titulo}" style="object-position: ${art.object_position || '50% 50%'};" onclick="openFullscreenImage('${art.imagen}')">
+                </div>
+                
                 <h3 class="card-title">${art.titulo}</h3>
-                <p class="card-desc"><strong>${displayType}</strong> ${art.tags.length ? '| ' + art.tags.join(', ') : ''}</p>
+                <p class="card-desc"><strong>${displayType}</strong>${tagsStr}</p>
             </div>`;
     });
 }
@@ -546,6 +580,19 @@ window.filterContent = function() {
         const text = item.textContent || item.innerText;
         item.style.display = text.toLowerCase().includes(term) ? "" : "none";
     });
+};
+
+window.renderDynamicTags = function() {
+    const tagsContainer = document.getElementById('fanart-tags');
+    if (!tagsContainer) return;
+    
+    const fanarts = misIlustraciones.filter(art => art.tipo === 'Fanart');
+    const uniqueTags = [...new Set(fanarts.flatMap(art => art.tags || []))].filter(t => t && t.trim() !== '');
+    
+    tagsContainer.innerHTML = uniqueTags.map(tag => {
+        const isActive = activeTags.includes(tag) ? 'active' : '';
+        return `<button class="tag-btn ${isActive}" onclick="toggleTag(this, '${tag}')">${tag}</button>`;
+    }).join('');
 };
 
 /* =========================================================
@@ -613,7 +660,7 @@ window.onscroll = function() {
 function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
 /* =========================================================
-   12. TOS & LEGAL DOCS
+   12. TOS & LEGAL DOCS (RESTAURADO)
 ========================================================= */
 async function renderLegalDocs() {
     const container = document.getElementById('tos-dynamic-container');
@@ -648,16 +695,18 @@ async function renderLegalDocs() {
                 section.content.forEach(txt => ul.innerHTML += `<li>${txt}</li>`);
                 contentDiv.appendChild(ul);
             } else if (section.type === 'accordion') {
-                section.items.forEach(faq => {
-                    contentDiv.innerHTML += `
-                        <div class="accordion-item nested-accordion">
-                            <div class="accordion-header nested-header" onclick="this.parentElement.classList.toggle('open')">
-                                <div style="font-weight: 600;">${faq.q}</div>
-                                <i class="bi bi-chevron-down acc-arrow" style="font-size: 0.9rem;"></i>
-                            </div>
-                            <div class="accordion-content nested-content">${faq.a}</div>
-                        </div>`;
-                });
+                if(section.items) {
+                    section.items.forEach(faq => {
+                        contentDiv.innerHTML += `
+                            <div class="accordion-item nested-accordion">
+                                <div class="accordion-header nested-header" onclick="this.parentElement.classList.toggle('open')">
+                                    <div style="font-weight: 600;">${faq.q}</div>
+                                    <i class="bi bi-chevron-down acc-arrow" style="font-size: 0.9rem;"></i>
+                                </div>
+                                <div class="accordion-content nested-content">${faq.a}</div>
+                            </div>`;
+                    });
+                }
             }
             headerDiv.onclick = () => itemDiv.classList.toggle('open');
             itemDiv.appendChild(headerDiv); itemDiv.appendChild(contentDiv); container.appendChild(itemDiv);

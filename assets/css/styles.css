@@ -518,13 +518,33 @@ body {
   transition: var(--transition);
 }
 .card-item:hover {
-  transform: translateY(-5px);
   background: var(--white);
   border-color: var(--primary-main);
   box-shadow: 0 8px 20px rgba(255, 156, 193, 0.2);
 }
 [data-theme="dark"] .card-item:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+.portfolio-img-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.portfolio-img-wrapper .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  margin-bottom: 0;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card-item:hover .portfolio-img-wrapper .card-img {
+  transform: scale(1.06);
 }
 .card-img {
   width: 100%;
@@ -720,12 +740,12 @@ body {
   border: 1px solid var(--glass-border);
 }
 .list-box.dos {
-  border-left: 5px solid #a8e6cf;
-  background: rgba(168, 230, 207, 0.1);
+  border-left: 5px solid #b5e4ca;
+  background: rgba(181, 228, 202, 0.15);
 }
 .list-box.donts {
-  border-left: 5px solid #ff8b94;
-  background: rgba(255, 139, 148, 0.1);
+  border-left: 5px solid #ffb3ba;
+  background: rgba(255, 179, 186, 0.15);
 }
 .list-box h3 {
   font-size: 1rem;
@@ -897,109 +917,6 @@ body {
   width: 100%;
   height: 15px;
   background: linear-gradient(transparent, var(--bg-grad-2));
-}
-
-@media (max-width: 800px) {
-  /* Navegación móvil estilo scroll horizontal */
-  .mobile-nav-container {
-    display: flex !important;
-    justify-content: flex-start;
-    gap: 10px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    background: var(--white);
-    padding: 10px 15px;
-    border-radius: 20px;
-    border: 2px solid var(--primary-light);
-  }
-
-  .mobile-nav-container::-webkit-scrollbar {
-    display: none;
-  }
-
-  .mobile-nav-container .nav-btn {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-    background: var(--glass-item);
-    border: 1px solid var(--glass-border);
-    padding: 10px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-  }
-
-  .mobile-nav-container .nav-btn.active {
-    background: var(--primary-main);
-    color: var(--white);
-  }
-
-  /* Perfil como Footer */
-  .two-col-layout {
-    display: flex;
-    flex-direction: column-reverse;
-    background: transparent;
-  }
-
-  .profile-col {
-    flex: none;
-    width: 100%;
-    border-right: none;
-    border-bottom: 2px solid var(--glass-border);
-    border-top: 2px dashed var(--glass-border);
-    padding: 40px 20px 20px;
-    position: relative;
-    top: 0;
-    margin-top: 50px;
-    background: var(--bg-side-columns);
-    border-radius: 0;
-  }
-
-  .main-content-col {
-    flex: none;
-    width: 100%;
-    padding: 30px 20px;
-    border-radius: 0 0 calc(var(--radius-main) - 2px)
-      calc(var(--radius-main) - 2px);
-  }
-
-  .avatar {
-    margin-top: -80px;
-    width: 120px;
-    height: 120px;
-  }
-
-  .search-bar-top,
-  .bookmark-nav {
-    display: none;
-  }
-
-  .dos-donts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Tablas de precios adaptables en móvil */
-  .pricelist-grid-container table,
-  .pricelist-grid-container thead,
-  .pricelist-grid-container tbody,
-  .pricelist-grid-container th,
-  .pricelist-grid-container td,
-  .pricelist-grid-container tr {
-    display: block;
-    width: 100%;
-  }
-
-  .pricelist-grid-container thead {
-    display: none;
-  }
-
-  .pricelist-grid-container td {
-    text-align: left;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--glass-border);
-  }
 }
 
 /* =========================================================
@@ -1436,37 +1353,207 @@ body:not(.loaded) .reveal {
 }
 
 /* ==========================================
-   12. CORRECCIONES FINALES MÓVIL Y WISHLIST
+   12. CORRECCIONES FINALES MÓVIL Y ESTADO
    ========================================== */
 
 #wishlist-grid .card-item {
   cursor: default !important;
   transform: none !important;
 }
-
 #wishlist-grid .card-item:hover {
   transform: none !important;
   box-shadow: none !important;
 }
-
 #wishlist-grid .card-img {
-  cursor: default !important;
+  cursor: pointer !important;
   transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
 }
-
 #wishlist-grid .card-item:hover .card-img {
-  transform: scale(0.92) !important;
+  transform: scale(0.94) !important;
 }
 
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-top: -80px;
+  z-index: 10;
+}
+.avatar-wrapper .avatar {
+  margin-top: 0;
+}
+.avatar-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 4px solid var(--bg-side-columns);
+  z-index: 10;
+  transition: background-color 0.4s ease;
+  cursor: help;
+}
+.status-dot-online {
+  background-color: #b5e4ca;
+  box-shadow: 0 0 10px rgba(181, 228, 202, 0.6);
+}
+.status-dot-busy {
+  background-color: #f7ca94;
+  box-shadow: 0 0 10px rgba(247, 202, 148, 0.6);
+}
+.status-dot-offline {
+  background-color: #ffb3ba;
+}
+
+.custom-status-tooltip {
+  background: rgba(30, 30, 30, 0.6) !important;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px !important;
+  padding: 6px 14px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  bottom: 130% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  white-space: nowrap;
+}
+
+.custom-status-tooltip::after {
+  display: none !important;
+}
+
+/* ==========================================
+   13. REGLAS RESPONSIVAS (MÓVIL)
+   ========================================== */
 @media (max-width: 800px) {
+  /* Navegación móvil estilo scroll horizontal */
+  .mobile-nav-container {
+    display: flex !important;
+    justify-content: flex-start;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background: var(--white);
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 2px solid var(--primary-light);
+  }
+
+  .mobile-nav-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-nav-container .nav-btn {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    background: var(--glass-item);
+    border: 1px solid var(--glass-border);
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+  }
+
+  .mobile-nav-container .nav-btn.active {
+    background: var(--primary-main);
+    color: var(--white);
+  }
+
+  /* Perfil como Footer */
+  .two-col-layout {
+    display: flex;
+    flex-direction: column-reverse;
+    background: transparent;
+  }
+
+  .profile-col {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--glass-border);
+    border-top: 2px dashed var(--glass-border);
+    padding: 40px 20px 20px;
+    position: relative;
+    top: 0;
+    margin-top: 50px;
+    background: var(--bg-side-columns);
+    border-radius: 0;
+  }
+
+  .main-content-col {
+    flex: none;
+    width: 100%;
+    padding: 30px 20px;
+    border-radius: 0 0 calc(var(--radius-main) - 2px)
+      calc(var(--radius-main) - 2px);
+  }
+
+  /* Ajuste de Avatar y Círculo de Estado en Móvil */
+  .avatar {
+    margin-top: -80px;
+    width: 120px;
+    height: 120px;
+  }
+
+  .avatar-wrapper .tooltip-container {
+    bottom: 2px !important;
+    right: 2px !important;
+  }
+
+  .avatar-status-dot {
+    width: 20px !important;
+    height: 20px !important;
+    border-width: 3px !important;
+  }
+
+  .search-bar-top,
+  .bookmark-nav {
+    display: none;
+  }
+
+  .dos-donts-grid {
+    grid-template-columns: 1fr;
+  }
+
   .pricelist-grid-container {
     grid-template-columns: 1fr !important;
     gap: 20px !important;
   }
 
-  .pricelist-grid-container table {
+  .pricelist-grid-container table,
+  .pricelist-grid-container thead,
+  .pricelist-grid-container tbody,
+  .pricelist-grid-container th,
+  .pricelist-grid-container td,
+  .pricelist-grid-container tr {
     display: block !important;
-    overflow-x: auto !important;
-    white-space: nowrap !important;
+    width: 100% !important;
+  }
+
+  .pricelist-grid-container thead {
+    display: none !important;
+  }
+
+  .pricelist-grid-container tr {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px dashed var(--glass-border) !important;
+  }
+
+  .pricelist-grid-container td {
+    text-align: left !important;
+    padding: 8px 5px !important;
+    border-bottom: none !important;
+  }
+
+  .pricelist-grid-container td:last-child {
+    text-align: right !important;
+    font-weight: 700;
+    color: var(--primary-main);
   }
 }
