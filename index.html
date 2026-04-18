@@ -43,10 +43,15 @@
 
         <div class="two-col-layout">
             
-<aside class="profile-col reveal delay-2">
+            <aside class="profile-col reveal delay-2">
                 
                 <div class="avatar-wrapper">
-                    <img id="profile-avatar" src="assets/img/core/pfp.png" alt="Avatar" class="avatar">
+                    <div id="avatar-cute-loader" class="avatar-cute-loader">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <img id="profile-avatar" src="assets/img/core/pfp.png" alt="Avatar" class="avatar" 
+                         onload="this.style.opacity='1'; document.getElementById('avatar-cute-loader').style.opacity='0'; setTimeout(() => document.getElementById('avatar-cute-loader').style.display='none', 300);">
+                    
                     <div class="tooltip-container" style="position: absolute; bottom: 13px; right: 13px;">
                         <div id="avatar-status-dot" class="avatar-status-dot"></div>
                         <span class="tooltip-text custom-status-tooltip" id="avatar-status-tooltip">Calculando...</span>
@@ -112,23 +117,16 @@
                             <div class="filter-row">
                                 <span class="filter-label"><i class="bi bi-palette2"></i> <span data-i18n="filter_lbl_type">Tipo</span>:</span>
                                 <div class="ui-btn-group" id="filter-type-group">
-                                    <button class="ui-filter-btn active" onclick="toggleFilter('type', 'all', this)" data-i18n="filter_type_all">Todos</button>
-                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Original', this)">Original</button>
-                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Comisión', this)" data-i18n="filter_type_comm">Comisión</button>
-                                    <button class="ui-filter-btn" onclick="toggleFilter('type', 'Fanart', this)">Fanart</button>
-                                </div>
+                                    </div>
                             </div>
                             <div class="filter-row">
                                 <span class="filter-label"><i class="bi bi-calendar3"></i> <span data-i18n="filter_lbl_year">Año</span>:</span>
                                 <div class="ui-btn-group" id="filter-year-group">
-                                    <button class="ui-filter-btn active" onclick="toggleFilter('year', 'all', this)" data-i18n="filter_year_all">Cualquiera</button>
-                                    <button class="ui-filter-btn" onclick="toggleFilter('year', '2026', this)">2026</button>
-                                    <button class="ui-filter-btn" onclick="toggleFilter('year', '2025', this)">2025</button>
-                                </div>
+                                    </div>
                             </div>
                             
                             <div id="fanart-tags" class="tags-container" style="display: none;">
-                            </div>
+                                </div>
                         </div>
                     </div>
 
@@ -274,6 +272,11 @@
 
     <div id="modal-image-view" class="modal-overlay" onclick="closeFullscreenImage(event)">
         <span class="close-image-btn" onclick="forceCloseFullscreen()"><i class="bi bi-x-lg"></i></span>
+        
+        <div id="full-view-info" class="full-view-info">
+            <p id="fv-details"></p>
+        </div>
+
         <div class="zoom-container" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
             <img id="full-view-img" src="" alt="Full view">
         </div>

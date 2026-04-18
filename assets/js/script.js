@@ -43,13 +43,15 @@ async function loadAllData() {
         translations = { es: {}, en: {} };
         if (transData) { transData.forEach(item => { translations.es[item.key] = item.es; translations.en[item.key] = item.en; }); }
 
-        const { data: portData } = await _client.from('portfolio').select('*').order('id', { ascending: false });
+        const { data: portData } = await _client.from('portfolio').select('*').order('year', { ascending: false }).order('id', { ascending: false });
         if (portData) {
             misIlustraciones = portData.map(item => ({
                 id: item.id, titulo: item.title, imagen: item.image_url, año: item.year ? item.year.toString() : "2026",
                 tipo: item.type, tags: item.tags || [], object_position: item.object_position || 'center',
                 destacado: item.destacado || false
             }));
+            renderTypeFilters(); // <-- Genera los tipos de forma dinámica
+            renderYearFilters();
             renderDynamicTags();
         }
 
@@ -94,13 +96,16 @@ window.updateLanguage = function(lang) {
         if (translations[lang] && translations[lang][key]) el.innerHTML = translations[lang][key];
     });
 
-    // --- Aplicar Identidad Visual (Avatar y Banner) ---
     const avatarImg = document.getElementById('profile-avatar');
-    if (avatarImg && translations[lang].avatar) avatarImg.src = translations[lang].avatar;
+    if (avatarImg && translations[lang].avatar) {
+        const loader = document.getElementById('avatar-cute-loader');
+        if(loader) { loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10); }
+        avatarImg.style.opacity = '0';
+        avatarImg.src = translations[lang].avatar;
+    }
     
     const bannerDiv = document.getElementById('profile-banner');
     if (bannerDiv && translations[lang].banner) bannerDiv.style.backgroundImage = `url('${translations[lang].banner}')`;
-    // --------------------------------------------------
 
     renderPortfolio(misIlustraciones); 
     if (currentOpenModalItemId !== null) { fillModalData(currentOpenModalItemId); loadPublicItemHistory(currentOpenModalItemId); }
@@ -109,6 +114,9 @@ window.updateLanguage = function(lang) {
     renderShop(); 
     renderPricelist(); 
     initBioCollapse();
+    
+    renderTypeFilters(); // <-- Actualiza el texto de "Todos" / "All"
+    renderYearFilters();
 };
 
 window.toggleLang = function() {
@@ -482,6 +490,47 @@ window.toggleFiltersUI = function() {
     btn.classList.toggle('active');
 };
 
+// --- NUEVA LÓGICA DE FILTROS ---
+window.renderTypeFilters = function() {
+    const typeGroup = document.getElementById('filter-type-group');
+    if (!typeGroup) return;
+
+    // Extraer tipos únicos del portafolio actual
+    const types = [...new Set(misIlustraciones.map(art => art.tipo))].filter(Boolean).sort();
+
+    let html = `<button class="ui-filter-btn active" onclick="toggleFilter('type', 'all', this)" data-i18n="filter_type_all">${translations[currentLang]?.filter_type_all || 'Todos'}</button>`;
+    
+    types.forEach(type => {
+        const isActive = activeTypes.includes(type) ? 'active' : '';
+        let displayType = type;
+        if (type === 'Comisión' && translations[currentLang] && translations[currentLang].filter_type_comm) { 
+            displayType = translations[currentLang].filter_type_comm; 
+        }
+        html += `<button class="ui-filter-btn ${isActive}" onclick="toggleFilter('type', '${type}', this)">${displayType}</button>`;
+    });
+    
+    typeGroup.innerHTML = html;
+};
+
+window.renderDynamicTags = function() {
+    const tagsContainer = document.getElementById('fanart-tags');
+    if (!tagsContainer) return;
+    
+    // Ahora extrae tags de los elementos que coincidan con el tipo seleccionado (o todos si no hay filtro de tipo)
+    const currentArts = misIlustraciones.filter(art => activeTypes.length === 0 || activeTypes.includes(art.tipo));
+    const uniqueTags = [...new Set(currentArts.flatMap(art => art.tags || []))].filter(t => t && t.trim() !== '');
+    
+    if (uniqueTags.length === 0) {
+        tagsContainer.style.display = 'none';
+    } else {
+        tagsContainer.style.display = 'flex';
+        tagsContainer.innerHTML = uniqueTags.map(tag => {
+            const isActive = activeTags.includes(tag) ? 'active' : '';
+            return `<button class="tag-btn ${isActive}" onclick="toggleTag(this, '${tag}')">${tag}</button>`;
+        }).join('');
+    }
+};
+
 window.toggleFilter = function(category, value, btn) {
     const group = document.getElementById(`filter-${category}-group`);
     const allBtn = group.querySelector(`[onclick*="'all'"]`);
@@ -500,12 +549,12 @@ window.toggleFilter = function(category, value, btn) {
         if (targetArray.length === 0) { allBtn.classList.add('active'); }
     }
 
-    const fanartTags = document.getElementById('fanart-tags');
-    if(fanartTags) { fanartTags.style.display = (activeTypes.includes('Fanart')) ? 'flex' : 'none'; }
-    if (!activeTypes.includes('Fanart')) { 
-        activeTags = []; 
-        document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active')); 
+    // Si cambiamos de categoría de TIPO, regeneramos los tags basados en la nueva selección y borramos los tags activos
+    if (category === 'type') {
+        activeTags = [];
+        renderDynamicTags(); 
     }
+    
     applyPortfolioFilters();
 };
 
@@ -548,24 +597,13 @@ function renderPortfolio(data) {
     grid.innerHTML = data.length ? '' : `<div class="empty-state">${fallbackMessage}</div>`;
     
     data.forEach((art, index) => {
-        let displayType = art.tipo;
-        if (art.tipo === 'Comisión' && translations[currentLang] && translations[currentLang].filter_type_comm) { displayType = translations[currentLang].filter_type_comm; }
-        
-        // Magia aquí: Filtra tags vacíos y solo pone el " | " si realmente hay algo
-        const validTags = (art.tags || []).filter(t => t && t.trim() !== '');
-        const tagsStr = validTags.length > 0 ? ` | ${validTags.join(', ')}` : '';
-        
         const staggeredDelay = (index * 0.05) + 0.4;
         grid.innerHTML += `
             <div class="card-item searchable reveal" style="animation-delay: ${staggeredDelay}s">
                 <div class="card-badge">${art.año}</div>
-                
-                <div class="portfolio-img-wrapper">
+                <div class="portfolio-img-wrapper" style="margin-bottom: 0;">
                     <img src="${art.imagen}" class="card-img" alt="${art.titulo}" style="object-position: ${art.object_position || '50% 50%'};" onclick="openFullscreenImage('${art.imagen}')">
                 </div>
-                
-                <h3 class="card-title">${art.titulo}</h3>
-                <p class="card-desc"><strong>${displayType}</strong>${tagsStr}</p>
             </div>`;
     });
 }
@@ -582,17 +620,18 @@ window.filterContent = function() {
     });
 };
 
-window.renderDynamicTags = function() {
-    const tagsContainer = document.getElementById('fanart-tags');
-    if (!tagsContainer) return;
+window.renderYearFilters = function() {
+    const yearGroup = document.getElementById('filter-year-group');
+    if (!yearGroup) return;
+
+    const years = [...new Set(misIlustraciones.map(art => art.año))].sort((a, b) => b - a);
+
+    yearGroup.innerHTML = `<button class="ui-filter-btn active" onclick="toggleFilter('year', 'all', this)" data-i18n="filter_year_all">${translations[currentLang]?.filter_year_all || 'Cualquiera'}</button>`;
     
-    const fanarts = misIlustraciones.filter(art => art.tipo === 'Fanart');
-    const uniqueTags = [...new Set(fanarts.flatMap(art => art.tags || []))].filter(t => t && t.trim() !== '');
-    
-    tagsContainer.innerHTML = uniqueTags.map(tag => {
-        const isActive = activeTags.includes(tag) ? 'active' : '';
-        return `<button class="tag-btn ${isActive}" onclick="toggleTag(this, '${tag}')">${tag}</button>`;
-    }).join('');
+    years.forEach(year => {
+        const isActive = activeYears.includes(year) ? 'active' : '';
+        yearGroup.innerHTML += `<button class="ui-filter-btn ${isActive}" onclick="toggleFilter('year', '${year}', this)">${year}</button>`;
+    });
 };
 
 /* =========================================================
@@ -632,8 +671,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.openFullscreenImage = function(url) {
-    if (!fullViewImg || !modalView) return;
-    fullViewImg.src = url; modalView.style.display = 'flex';
+    const art = misIlustraciones.find(a => a.imagen === url);
+    if (!art || !fullViewImg || !modalView) return;
+
+    const detailsEl = document.getElementById('fv-details');
+    
+    if (detailsEl) {
+        let displayType = art.tipo;
+        if (art.tipo === 'Comisión' && translations[currentLang] && translations[currentLang].filter_type_comm) { displayType = translations[currentLang].filter_type_comm; }
+        const validTags = (art.tags || []).filter(t => t && t.trim() !== '');
+
+        const lblTitle = currentLang === 'es' ? 'Título' : 'Title';
+        const lblYear = currentLang === 'es' ? 'Año' : 'Year';
+        const lblType = currentLang === 'es' ? 'Tipo' : 'Type';
+
+        detailsEl.innerHTML = `
+            <div style="margin-bottom: 8px;"><strong>${lblTitle}:</strong> ${art.titulo}</div>
+            <div style="margin-bottom: 8px;"><strong>${lblYear}:</strong> ${art.año}</div>
+            <div style="margin-bottom: 8px;"><strong>${lblType}:</strong> ${displayType}</div>
+            ${validTags.length ? `<div><strong>Tags:</strong> ${validTags.join(', ')}</div>` : ''}
+        `;
+    }
+
+    fullViewImg.src = url; 
+    modalView.style.display = 'flex';
+    modalView.classList.remove('zoomed-in');
     zoomScale = 1; translateX = 0; translateY = 0; updateImageTransform();
 };
 
@@ -648,6 +710,9 @@ window.forceCloseFullscreen = function() {
 function updateImageTransform() {
     if (!fullViewImg) return;
     fullViewImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
+    
+    if (zoomScale > 1.1) modalView.classList.add('zoomed-in');
+    else modalView.classList.remove('zoomed-in');
 }
 
 /* =========================================================

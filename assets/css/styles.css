@@ -290,7 +290,45 @@ body {
   position: relative;
   z-index: 10;
   box-shadow: 0 5px 15px var(--glass-shadow);
-  transition: border-color 0.4s ease;
+  transition:
+    opacity 0.5s ease,
+    border-color 0.4s ease;
+  opacity: 0;
+}
+
+.avatar-cute-loader {
+  position: absolute;
+  top: 0; /* Asegurado para superponerse correctamente */
+  left: 0;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 6px solid var(--bg-side-columns);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--primary-main);
+  font-size: 2.5rem;
+  z-index: 9;
+  box-shadow: 0 5px 15px var(--glass-shadow);
+  transition: opacity 0.15s ease;
+}
+
+.avatar-cute-loader i {
+  animation: cuteSpin 2.5s ease-in-out infinite;
+}
+
+@keyframes cuteSpin {
+  0% {
+    transform: rotate(0deg) scale(0.9);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.9);
+  }
 }
 
 .profile-text-content {
@@ -530,7 +568,6 @@ body {
   aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 10px;
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -578,6 +615,7 @@ body {
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--primary-main);
+  z-index: 2;
 }
 
 .text-block {
@@ -862,6 +900,24 @@ body {
   margin-right: 5px;
 }
 
+/* Modificaciones para el visor con info al lado */
+#modal-image-view {
+  display: none;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+#modal-image-view .zoom-container {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 100%;
+  overflow: hidden;
+}
+
 #modal-image-view img {
   max-width: 90vw;
   max-height: 90vh;
@@ -870,10 +926,13 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   cursor: grab;
   transform-origin: center center;
+  transition: opacity 0.3s ease;
 }
+
 #modal-image-view img:active {
   cursor: grabbing;
 }
+
 .close-image-btn {
   position: absolute;
   top: 20px;
@@ -894,6 +953,50 @@ body {
 .close-image-btn:hover {
   color: var(--primary-main);
   transform: scale(1.1);
+}
+
+/* --- Estilos para la info en el visor de imágenes --- */
+.full-view-info {
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 20px;
+  text-align: left;
+  z-index: 20002;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  min-width: 250px;
+  max-width: 350px;
+  margin-left: 20px;
+  color: #fff;
+  flex: 0 0 auto;
+}
+
+[data-theme="dark"] .full-view-info {
+  background: rgba(20, 20, 20, 0.9);
+}
+
+.full-view-info p {
+  font-size: 0.95rem; /* Letra un poco más grande para legibilidad */
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.full-view-info strong {
+  color: var(--primary-main); /* Etiquetas destacadas en tu color principal */
+  font-weight: 700;
+}
+
+/* Ocultar la info cuando el modal tiene la clase .zoomed-in */
+#modal-image-view.zoomed-in .full-view-info {
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
 }
 
 /* =========================================================
@@ -1500,6 +1603,13 @@ body:not(.loaded) .reveal {
     height: 120px;
   }
 
+  .avatar-cute-loader {
+    width: 120px;
+    height: 120px;
+    top: 0;
+    font-size: 2rem;
+  }
+
   .avatar-wrapper .tooltip-container {
     bottom: 2px !important;
     right: 2px !important;
@@ -1556,5 +1666,26 @@ body:not(.loaded) .reveal {
     text-align: right !important;
     font-weight: 700;
     color: var(--primary-main);
+  }
+
+  /* --- Info del Visor en Móvil (Arriba de la imagen) --- */
+  #modal-image-view {
+    flex-direction: column;
+    padding: 60px 15px 20px;
+  }
+
+  .full-view-info {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-left: 0;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  #modal-image-view.zoomed-in .full-view-info {
+    transform: translateY(-20px);
   }
 }
