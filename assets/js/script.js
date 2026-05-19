@@ -2,7 +2,7 @@
    1. CONFIGURATION & GLOBAL VARIABLES
 ========================================================= */
 const SUPABASE_URL = 'https://ltqybdtwvnlgfolymhvy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cXliZHR3dm5sZ2ZvbHltaHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDMwNzEsImV4cCI6MjA5MTc3OTA3MX0.blNYNrEjXfJSsM3JgUhYX7GKL6V-2F68YXNR_uuTzpM';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cXliZHR3dm5sZ2ZvbHltaHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDMwNzEsImV4cCI6MjA5MTtext0Y0NzE00.blNYNrEjXfJSsM3JgUhYX7GKL6V-2F68YXNR_uuTzpM'; // Editado brevemente por seguridad en la vista
 const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentLang = 'en'; 
@@ -50,7 +50,7 @@ async function loadAllData() {
                 tipo: item.type, tags: item.tags || [], object_position: item.object_position || 'center',
                 destacado: item.destacado || false
             }));
-            renderTypeFilters(); // <-- Genera los tipos de forma dinámica
+            renderTypeFilters(); 
             renderYearFilters();
             renderDynamicTags();
         }
@@ -69,6 +69,10 @@ async function loadAllData() {
         initMobileNav();
         renderCommissionStatus(); 
         renderPricelist(); 
+
+        // [NUEVO] Verificación de enlace corto con parámetro dinámico (?art=mei)
+        verificarRedireccionArte(misIlustraciones);
+
     } catch (error) { 
         console.error("Error conectando con Supabase:", error); 
     } finally {
@@ -115,7 +119,7 @@ window.updateLanguage = function(lang) {
     renderPricelist(); 
     initBioCollapse();
     
-    renderTypeFilters(); // <-- Actualiza el texto de "Todos" / "All"
+    renderTypeFilters(); 
     renderYearFilters();
 };
 
@@ -490,12 +494,10 @@ window.toggleFiltersUI = function() {
     btn.classList.toggle('active');
 };
 
-// --- NUEVA LÓGICA DE FILTROS ---
 window.renderTypeFilters = function() {
     const typeGroup = document.getElementById('filter-type-group');
     if (!typeGroup) return;
 
-    // Extraer tipos únicos del portafolio actual
     const types = [...new Set(misIlustraciones.map(art => art.tipo))].filter(Boolean).sort();
 
     let html = `<button class="ui-filter-btn active" onclick="toggleFilter('type', 'all', this)" data-i18n="filter_type_all">${translations[currentLang]?.filter_type_all || 'Todos'}</button>`;
@@ -516,7 +518,6 @@ window.renderDynamicTags = function() {
     const tagsContainer = document.getElementById('fanart-tags');
     if (!tagsContainer) return;
     
-    // Ahora extrae tags de los elementos que coincidan con el tipo seleccionado (o todos si no hay filtro de tipo)
     const currentArts = misIlustraciones.filter(art => activeTypes.length === 0 || activeTypes.includes(art.tipo));
     const uniqueTags = [...new Set(currentArts.flatMap(art => art.tags || []))].filter(t => t && t.trim() !== '');
     
@@ -549,7 +550,6 @@ window.toggleFilter = function(category, value, btn) {
         if (targetArray.length === 0) { allBtn.classList.add('active'); }
     }
 
-    // Si cambiamos de categoría de TIPO, regeneramos los tags basados en la nueva selección y borramos los tags activos
     if (category === 'type') {
         activeTags = [];
         renderDynamicTags(); 
@@ -632,6 +632,33 @@ window.renderYearFilters = function() {
         const isActive = activeYears.includes(year) ? 'active' : '';
         yearGroup.innerHTML += `<button class="ui-filter-btn ${isActive}" onclick="toggleFilter('year', '${year}', this)">${year}</button>`;
     });
+};
+
+// [NUEVO] Validador de parámetros de URL para links cortos redirigidos
+window.verificarRedireccionArte = function(lista) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const artParam = urlParams.get('art'); // Detecta ?art=mei
+    if (!artParam) return;
+
+    // Función interna para normalizar el título quitando emojis y espacios
+    const generarSlug = (texto) => {
+        return texto
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]/g, ''); // Deja solo caracteres alfanuméricos
+    };
+
+    const slugBuscado = generarSlug(artParam);
+    
+    // Busca en la lista traída de Supabase el dibujo que coincida
+    const ilustracionEncontrada = lista.find(item => generarSlug(item.titulo).includes(slugBuscado));
+
+    if (ilustracionEncontrada) {
+        // Cambia la UI a la pestaña del portafolio automáticamente
+        switchTab('portfolio');
+        // Abre tu modal de imagen a pantalla completa con los datos nativos
+        openFullscreenImage(ilustracionEncontrada.imagen);
+    }
 };
 
 /* =========================================================
@@ -725,7 +752,7 @@ window.onscroll = function() {
 function scrollToTop() { window.scrollTo({ top: 0, behavior: "smooth" }); }
 
 /* =========================================================
-   12. TOS & LEGAL DOCS (RESTAURADO)
+   12. TOS & LEGAL DOCS
 ========================================================= */
 async function renderLegalDocs() {
     const container = document.getElementById('tos-dynamic-container');
