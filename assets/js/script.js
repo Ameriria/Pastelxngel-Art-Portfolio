@@ -2,7 +2,7 @@
    1. CONFIGURATION & GLOBAL VARIABLES
 ========================================================= */
 const SUPABASE_URL = 'https://ltqybdtwvnlgfolymhvy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cXliZHR3dm5sZ2ZvbHltaHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDMwNzEsImV4cCI6MjA5MTtext0Y0NzE00.blNYNrEjXfJSsM3JgUhYX7GKL6V-2F68YXNR_uuTzpM'; // Editado brevemente por seguridad en la vista
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0cXliZHR3dm5sZ2ZvbHltaHZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMDMwNzEsImV4cCI6MjA5MTc3OTA3MX0.blNYNrEjXfJSsM3JgUhYX7GKL6V-2F68YXNR_uuTzpM';
 const _client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentLang = 'en'; 
@@ -70,7 +70,7 @@ async function loadAllData() {
         renderCommissionStatus(); 
         renderPricelist(); 
 
-        // [NUEVO] Verificación de enlace corto con parámetro dinámico (?art=mei)
+        // Verificación de enlace corto con parámetro dinámico (?art=meitomei)
         verificarRedireccionArte(misIlustraciones);
 
     } catch (error) { 
@@ -634,29 +634,25 @@ window.renderYearFilters = function() {
     });
 };
 
-// [NUEVO] Validador de parámetros de URL para links cortos redirigidos
+// Validador de parámetros de URL para links cortos redirigidos
 window.verificarRedireccionArte = function(lista) {
     const urlParams = new URLSearchParams(window.location.search);
-    const artParam = urlParams.get('art'); // Detecta ?art=mei
+    const artParam = urlParams.get('art'); 
     if (!artParam) return;
 
-    // Función interna para normalizar el título quitando emojis y espacios
     const generarSlug = (texto) => {
+        if (!texto) return '';
         return texto
             .toLowerCase()
             .trim()
-            .replace(/[^a-z0-9]/g, ''); // Deja solo caracteres alfanuméricos
+            .replace(/[^a-z0-9]/g, ''); 
     };
 
     const slugBuscado = generarSlug(artParam);
-    
-    // Busca en la lista traída de Supabase el dibujo que coincida
     const ilustracionEncontrada = lista.find(item => generarSlug(item.titulo).includes(slugBuscado));
 
     if (ilustracionEncontrada) {
-        // Cambia la UI a la pestaña del portafolio automáticamente
         switchTab('portfolio');
-        // Abre tu modal de imagen a pantalla completa con los datos nativos
         openFullscreenImage(ilustracionEncontrada.imagen);
     }
 };
@@ -698,6 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.openFullscreenImage = function(url) {
+    // Inicialización dinámica forzada para evitar conflictos de tiempos (race condition)
+    if (!fullViewImg) fullViewImg = document.getElementById('full-view-img');
+    if (!modalView) modalView = document.getElementById('modal-image-view');
+
     const art = misIlustraciones.find(a => a.imagen === url);
     if (!art || !fullViewImg || !modalView) return;
 
